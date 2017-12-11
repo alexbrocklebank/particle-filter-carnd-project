@@ -78,13 +78,13 @@ void ParticleFilter::prediction(double delta_t, double std_pos[], double velocit
 		if (yaw_rate >= 0.001) {
 			it->x = x + (velocity / yaw_rate) * (sin(theta + (yaw_rate * delta_t)) - sin(theta));
 			it->y = y + (velocity / yaw_rate) * (cos(theta) - cos(theta + (yaw_rate * delta_t)));
-			th->theta = theta + (yaw_rate * delta_t);
+			it->theta = theta + (yaw_rate * delta_t);
 		}
 		// If yaw rate is Zero
 		else {
 			it->x = sin(theta) * velocity * delta_t;
 			it->y = cos(theta) * velocity * delta_t;
-			th->theta = theta;
+			it->theta = theta;
 		}
 		normal_distribution<double> dist_x(it->x, std_x);
 		normal_distribution<double> dist_y(it->y, std_y);
