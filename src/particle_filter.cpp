@@ -136,6 +136,31 @@ void ParticleFilter::resample() {
 	//   http://en.cppreference.com/w/cpp/numeric/random/discrete_distribution
 	std::cout << "Particle Filter Resampling......\n";
 
+	// Variables
+	std::vector<Particle> new_p;
+	default_random_engine gen;
+	int index = (int)(gen * num_particles)
+	float beta = 0.0;
+	float max_w = 0.0;
+
+	// Find max weight in Particles
+	for (int i = 0; i < num_particles; i++) {
+		if (particles[i].weight > max_w) {
+			max_w = particles[i].weight;
+		}
+	}
+	// Resampling Wheel method from Lesson 13.20
+	for (int i = 0; i < num_particles; i++) {
+		beta += gen * 2.0 * max_w;
+		while (beta > particles[index].weight) {
+			beta -= particles[index].weight;
+			index = (index + 1) % num_particles;
+		}
+		new_p.push_back(particles[index]);
+	}
+
+	particles = new_p;
+
 	std::cout << "Particle Filter Resampling Complete.\n";
 }
 
