@@ -133,7 +133,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 	for (int p = 0; p < particles.size(); p++) {
 		double particle_x = particles[p].x;
 		double particle_y = particles[p].y;
-		double particle_theta = particles[p].theta;
+		double theta = particles[p].theta;
 
 		// Transform Observation to Map coordinates
 		for (int i = 0; i < observations.size(); i++) {
@@ -154,7 +154,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 			double sig_y = std_landmark[1];
 			//TODO: Test the equations below, determine correct inputs
 			double gauss_norm = (1.0 / (2.0 * M_PI * sig_x * sig_y));
-			double exponent = ((x_map - x_obs) **2) / (2 * sig_x **2) + ((y_map - y_obs) **2)/(2 * sig_y **2); 
+			double exponent = (pow((x_map - x_obs),2)) / (2 * pow(sig_x, 2)) + (pow((y_map - y_obs), 2)) / (2 * pow(sig_y, 2)); 
 			double weight = gauss_norm * exp(-exponent);
 		}
 	}
@@ -174,8 +174,9 @@ void ParticleFilter::resample() {
 
 	// Variables
 	std::vector<Particle> new_p;
-	default_random_engine gen;
-	int index = (int)(gen * num_particles)
+	default_random_engine gen(time(0));
+	uniform_real_distribution<double> dist(0.0, 1.0);
+	int index = (int)(dist(gen) * num_particles)
 	double beta = 0.0;
 	double max_w = 0.0;
 
@@ -187,7 +188,7 @@ void ParticleFilter::resample() {
 	}
 	// Resampling Wheel method from Lesson 13.20
 	for (int i = 0; i < num_particles; i++) {
-		beta += gen * 2.0 * max_w;
+		beta += dist(gen) * 2.0 * max_w;
 		while (beta > particles[index].weight) {
 			beta -= particles[index].weight;
 			index = (index + 1) % num_particles;
