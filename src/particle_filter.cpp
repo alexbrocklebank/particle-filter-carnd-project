@@ -39,7 +39,7 @@ void ParticleFilter::init(double x, double y, double theta, double std[]) {
 
 	// Create particles from distributions
 	for (int i = 0; i < num_particles; i++) {
-		Particle p = new Particle;
+		Particle p = Particle();
 		p.id = i;
 		p.x = dist_x(gen);
 		p.y = dist_y(gen);
