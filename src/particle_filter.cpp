@@ -28,13 +28,13 @@ void ParticleFilter::init(double x, double y, double theta, double std[]) {
 	std::cout << "Particle Filter Initialization......\n";
 
 	// Number of particles to draw
-	num_particles = 1000;
+	num_particles = 100;
 
 	// Set up Gaussian Distributions with random generator
 	default_random_engine gen;
-	float std_x = std[0];
-	float std_y = std[1];
-	float std_theta = std[2];
+	double std_x = std[0];
+	double std_y = std[1];
+	double std_theta = std[2];
 	normal_distribution<double> dist_x(x, std_x);
 	normal_distribution<double> dist_y(y, std_y);
 	normal_distribution<double> dist_theta(theta, std_theta);
@@ -69,17 +69,17 @@ void ParticleFilter::prediction(double delta_t, double std_pos[], double velocit
 
 	// Set up Gaussian Distributions with random generator
 	default_random_engine gen;
-	float std_x = std_pos[0];
-	float std_y = std_pos[1];
-	float std_theta = std_pos[2];
+	double std_x = std_pos[0];
+	double std_y = std_pos[1];
+	double std_theta = std_pos[2];
 
 	// Make a Particle iterator
 	std::vector<Particle>::iterator it;
 
 	for (it = particles.begin(); it != particles.end(); ++it) {
-		float x = it->x;
-		float y = it->y;
-		float theta = it->theta;
+		double x = it->x;
+		double y = it->y;
+		double theta = it->theta;
 		// If yaw rate is not Zero
 		if (yaw_rate >= 0.001) {
 			it->x = x + (velocity / yaw_rate) * (sin(theta + (yaw_rate * delta_t)) - sin(theta));
@@ -127,6 +127,42 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 	//   http://planning.cs.uiuc.edu/node99.html
 	std::cout << "Particle Filter Updating Weights......\n";
 
+	// TODO: Where to place code for Nearest Neighbor data association...
+
+	// Loop through each Particle and convert 
+	for (int p = 0; p < particles.size(); p++) {
+		double particle_x = particles[p].x;
+		double particle_y = particles[p].y;
+		double particle_theta = particles[p].theta;
+
+		// Transform Observation to Map coordinates
+		for (int i = 0; i < observations.size(); i++) {
+			// Observation coordinates, X and Y
+			double x_obs = observations[i].x;
+			double y_obs = observations[i].y;
+
+			// Landmarks Equation from Lesson 14.16 and Figure 3.33
+			double x_map = particle_x + (cos(theta) * x_obs) - (sin(theta) * y_obs);
+			double y_map = particle_y + (sin(theta) * x_obs) + (cos(theta) * y_obs);
+
+			// Add coordinates converted to map space to sense data for the current particle
+			particles[p].sense_x.push_back(x_map);
+			particles[p].sense_y.push_back(y_map);
+
+			// Multivariate-Gaussian Probability, Lesson 14:19
+			double sig_x = std_landmark[0];
+			double sig_y = std_landmark[1];
+			//TODO: Test the equations below, determine correct inputs
+			double gauss_norm = (1.0 / (2.0 * M_PI * sig_x * sig_y));
+			double exponent = ((x_map - x_obs) **2) / (2 * sig_x **2) + ((y_map - y_obs) **2)/(2 * sig_y **2); 
+			double weight = gauss_norm * exp(-exponent);
+		}
+	}
+
+	// Associate Observations to Landmarks 
+//TODO: figure out what to pass for parameter 1
+	ParticleFilter::dataAssociation(predicted, observations);
+
 	std::cout << "Particle Filter Updating Weights Complete.\n";
 }
 
@@ -140,8 +176,8 @@ void ParticleFilter::resample() {
 	std::vector<Particle> new_p;
 	default_random_engine gen;
 	int index = (int)(gen * num_particles)
-	float beta = 0.0;
-	float max_w = 0.0;
+	double beta = 0.0;
+	double max_w = 0.0;
 
 	// Find max weight in Particles
 	for (int i = 0; i < num_particles; i++) {
