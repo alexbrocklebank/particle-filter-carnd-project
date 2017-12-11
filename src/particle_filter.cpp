@@ -176,7 +176,7 @@ void ParticleFilter::resample() {
 	std::vector<Particle> new_p;
 	default_random_engine gen(time(0));
 	uniform_real_distribution<double> dist(0.0, 1.0);
-	int index = (int)(dist(gen) * num_particles)
+	int index = (int)(dist(gen) * num_particles);
 	double beta = 0.0;
 	double max_w = 0.0;
 
