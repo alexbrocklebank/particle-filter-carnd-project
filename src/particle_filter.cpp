@@ -39,7 +39,7 @@ void ParticleFilter::init(double x, double y, double theta, double std[]) {
 
 	// Create particles from distributions
 	for (int i = 0; i < num_particles; i++) {
-		Particle p = new Particle();
+		Particle p = new Particle;
 		p.id = i;
 		p.x = dist_x(gen);
 		p.y = dist_y(gen);
@@ -49,7 +49,7 @@ void ParticleFilter::init(double x, double y, double theta, double std[]) {
 	}
 
 	// Vector of weights of all particles
-	weights(num_particles, 0.0);
+	std::vector<double> weights(num_particles, 0.0);
 
 	// Flag, if filter is initialized
 	is_initialized = true;
