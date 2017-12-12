@@ -150,9 +150,9 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 
 			// Nearest Neighbor Algorithm
 			// TODO: Make temp list of landmarks, and after each run, pop the selected landmark
-			for (int cur_landmark = 0; cur_landmark < map_landmarks.size(); cur_landmark++) {
-				x_pred = map_landmarks[cur_landmark].x;
-				y_pred = map_landmarks[cur_landmark].y;
+			for (int cur_landmark = 0; cur_landmark < map_landmarks.landmark_list.size(); cur_landmark++) {
+				x_pred = map_landmarks.landmark_list[cur_landmark].x_f;
+				y_pred = map_landmarks.landmark_list[cur_landmark].y_f;
 				// Measure distance between points by Pythagorean Theorem
 				// sqrt( ( x1 - x2 )**2 + ( y1 - y2 )**2 )
 				double distance = pow((pow((x_map - x_pred), 2) + pow((y_map - y_pred), 2)), 0.5);
@@ -163,7 +163,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 			}
 			// Associate Observations to Landmarks
 			// TODO: Use ParticleFilter::SetAssociations() for code below
-			particles[p].associations.push_back(map_landmarks[closest_prediction].id);
+			particles[p].associations.push_back(map_landmarks.landmark_list[closest_prediction].id_i);
 			particles[p].sense_x.push_back(x_map);
 			particles[p].sense_y.push_back(y_map);
 			// TODO: Remove landmark from temp list, to reduce loop size each run and improve speed
@@ -172,8 +172,8 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 			// Multivariate-Gaussian Probability, Lesson 14:19
 			double sig_x = std_landmark[0];
 			double sig_y = std_landmark[1];
-			double mu_x = map_landmarks[closest_prediction].x;
-			double mu_y = map_landmarks[closest_prediction].y;
+			double mu_x = map_landmarks.landmark_list[closest_prediction].x_f;
+			double mu_y = map_landmarks.landmark_list[closest_prediction].y_f;
 			//TODO: Test the equations below, determine correct inputs
 			double gauss_norm = (1.0 / (2.0 * M_PI * sig_x * sig_y));
 			double exponent = (pow((x_map - x_obs),2)) / (2 * pow(sig_x, 2)) + (pow((y_map - y_obs), 2)) / (2 * pow(sig_y, 2)); 
