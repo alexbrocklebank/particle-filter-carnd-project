@@ -151,8 +151,8 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 			// Nearest Neighbor Algorithm
 			// TODO: Make temp list of landmarks, and after each run, pop the selected landmark
 			for (int cur_landmark = 0; cur_landmark < map_landmarks.landmark_list.size(); cur_landmark++) {
-				x_pred = map_landmarks.landmark_list[cur_landmark].x_f;
-				y_pred = map_landmarks.landmark_list[cur_landmark].y_f;
+				double x_pred = map_landmarks.landmark_list[cur_landmark].x_f;
+				double y_pred = map_landmarks.landmark_list[cur_landmark].y_f;
 				// Measure distance between points by Pythagorean Theorem
 				// sqrt( ( x1 - x2 )**2 + ( y1 - y2 )**2 )
 				double distance = pow((pow((x_map - x_pred), 2) + pow((y_map - y_pred), 2)), 0.5);
