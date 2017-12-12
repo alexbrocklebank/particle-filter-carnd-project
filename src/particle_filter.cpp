@@ -108,37 +108,8 @@ void ParticleFilter::dataAssociation(std::vector<LandmarkObs> predicted, std::ve
 	//   observed measurement to this particular landmark.
 	// NOTE: this method will NOT be called by the grading code. But you will probably find it useful to 
 	//   implement this method and use it as a helper during the updateWeights phase.
-	std::cout << "Particle Filter Data Association......\n";
+	std::cout << "NOT USED YET ......\n";
 	
-	/* Particle
-	std::vector<int> associations;
-	std::vector<double> sense_x;
-	std::vector<double> sense_y;
-	*/
-	int closest_prediction = -1;
-	double min_distance = 1000.00;
-
-	// For Each Landmark Observation
-	for (int j = 0; j < observations.size(); j++) {
-		double x_obs = observations[j].x;
-		double y_obs = observations[j].y;
-		// For Each Predicted Landmark
-		for (int i = 0; i < predicted.size(); i++) {
-			x_pred = predicted[i].x;
-			y_pred = predicted[i].y;
-			// Measure distance between points by Pythagorean Theorem
-			// sqrt( | x1 - x2 |**2 + | y1 - y2 |**2 )
-			double distance = pow((pow(abs(x_obs - x_pred), 2) + pow(abs(y_obs - y_pred), 2)), 0.5);
-			if (distance < min_distance) {
-				closest_prediction = i;
-				min_distance = distance;
-			}
-		}
-		observations[j].associations.push_back(predicted[closest_prediction].id)
-	}
-
-
-	std::cout << "Particle Filter Data Association Complete.\n";
 }
 
 void ParticleFilter::updateWeights(double sensor_range, double std_landmark[], 
@@ -155,19 +126,19 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 	//   http://planning.cs.uiuc.edu/node99.html
 	std::cout << "Particle Filter Updating Weights......\n";
 
-	// TODO: Where to place code for Nearest Neighbor data association...
-
 	// Loop through each Particle and convert 
 	for (int p = 0; p < particles.size(); p++) {
 		double particle_x = particles[p].x;
 		double particle_y = particles[p].y;
 		double theta = particles[p].theta;
+		int closest_prediction = -1;
+		double min_distance = 1000.00;
 
 		// Transform Observation to Map coordinates
-		for (int i = 0; i < observations.size(); i++) {
+		for (int cur_obs = 0; cur_obs < observations.size(); cur_obs++) {
 			// Observation coordinates, X and Y
-			double x_obs = observations[i].x;
-			double y_obs = observations[i].y;
+			double x_obs = observations[cur_obs].x;
+			double y_obs = observations[cur_obs].y;
 
 			// Landmarks Equation from Lesson 14.16 and Figure 3.33
 			double x_map = particle_x + (cos(theta) * x_obs) - (sin(theta) * y_obs);
@@ -177,6 +148,25 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 			particles[p].sense_x.push_back(x_map);
 			particles[p].sense_y.push_back(y_map);
 
+			// Nearest Neighbor Algorithm
+			for (int cur_landmark = 0; cur_landmark < map_landmarks.size(); cur_landmark++) {
+				x_pred = map_landmarks[cur_landmark].x;
+				y_pred = map_landmarks[cur_landmark].y;
+				// Measure distance between points by Pythagorean Theorem
+				// sqrt( ( x1 - x2 )**2 + ( y1 - y2 )**2 )
+				double distance = pow((pow((x_map - x_pred), 2) + pow((y_map - y_pred), 2)), 0.5);
+				if (distance < min_distance) {
+					closest_prediction = i;
+					min_distance = distance;
+				}
+			}
+			// Associate Observations to Landmarks
+			// TODO: Use ParticleFilter::SetAssociations() for code below
+			particles[p].associations.push_back(map_landmarks[closest_prediction].id);
+			particles[p].sense_x.push_back(x_map);
+			particles[p].sense_y.push_back(y_map);
+
+			// TODO: Where does below code belong?
 			// Multivariate-Gaussian Probability, Lesson 14:19
 			double sig_x = std_landmark[0];
 			double sig_y = std_landmark[1];
@@ -186,10 +176,6 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 			double weight = gauss_norm * exp(-exponent);
 		}
 	}
-
-	// Associate Observations to Landmarks 
-//TODO: figure out what to pass for parameter 1
-	ParticleFilter::dataAssociation(predicted, observations);
 
 	std::cout << "Particle Filter Updating Weights Complete.\n";
 }
