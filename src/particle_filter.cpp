@@ -109,6 +109,34 @@ void ParticleFilter::dataAssociation(std::vector<LandmarkObs> predicted, std::ve
 	// NOTE: this method will NOT be called by the grading code. But you will probably find it useful to 
 	//   implement this method and use it as a helper during the updateWeights phase.
 	std::cout << "Particle Filter Data Association......\n";
+	
+	/* Particle
+	std::vector<int> associations;
+	std::vector<double> sense_x;
+	std::vector<double> sense_y;
+	*/
+	int closest_prediction = -1;
+	double min_distance = 1000.00;
+
+	// For Each Landmark Observation
+	for (int j = 0; j < observations.size(); j++) {
+		double x_obs = observations[j].x;
+		double y_obs = observations[j].y;
+		// For Each Predicted Landmark
+		for (int i = 0; i < predicted.size(); i++) {
+			x_pred = predicted[i].x;
+			y_pred = predicted[i].y;
+			// Measure distance between points by Pythagorean Theorem
+			// sqrt( | x1 - x2 |**2 + | y1 - y2 |**2 )
+			double distance = pow((pow(abs(x_obs - x_pred), 2) + pow(abs(y_obs - y_pred), 2)), 0.5);
+			if (distance < min_distance) {
+				closest_prediction = i;
+				min_distance = distance;
+			}
+		}
+		observations[j].associations.push_back(predicted[closest_prediction].id)
+	}
+
 
 	std::cout << "Particle Filter Data Association Complete.\n";
 }
@@ -209,9 +237,15 @@ Particle ParticleFilter::SetAssociations(Particle& particle, const std::vector<i
     // sense_x: the associations x mapping already converted to world coordinates
     // sense_y: the associations y mapping already converted to world coordinates
 
-    particle.associations= associations;
+	particle.associations.clear();
+	particle.sense_x.clear();
+	particle.sense_y.clear();
+
+    particle.associations = associations;
     particle.sense_x = sense_x;
     particle.sense_y = sense_y;
+
+	return particle;
 }
 
 string ParticleFilter::getAssociations(Particle best)
