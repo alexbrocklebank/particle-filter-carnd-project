@@ -194,7 +194,6 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 			associations.push_back(nearest_neighbor.id_i);
 			x_observations.push_back(x_map);
 			y_observations.push_back(y_map);
-			particles[p] = SetAssociations(particles[p], associations, x_observations, y_observations);
 			//std::cout << "Particle " << p << " Associations Updated.\n";
 			
 			// Remove landmark from temp list, to reduce loop size each run and improve speed
@@ -213,7 +212,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 			//std::cout << "weight = " << weight << "\n";
 
 			// Update particle weights and weights vector
-			particles[p].weight += particle_weight;
+			particles[p].weight *= particle_weight;
 			//std::cout << "Particle " << p << ": \n";
 			//std::cout << "x:      " << particles[p].x << "\n";
 			//std::cout << "y:      " << particles[p].y << "\n";
@@ -222,6 +221,8 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 			//weights[particles[p].id] = weight;
 			//std::cout << "Weights Updated.\n";
 		}
+		// Update particle weights (divide by # of weights)
+		particles[p] = SetAssociations(particles[p], associations, x_observations, y_observations);
 	}
 
 	//std::cout << "Particle Filter Updating Weights Complete.\n";
