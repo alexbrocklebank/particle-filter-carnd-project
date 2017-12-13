@@ -147,7 +147,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 		double theta = particles[p].theta;
 
 		// Reset particle weights
-		particles[p].weight = 0.0;
+		particles[p].weight = 1.0;
 
 		// SetAssociations variables
 		std:vector<int> associations;
@@ -167,8 +167,6 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 			double x_map = particle_x + (cos(theta) * x_obs) - (sin(theta) * y_obs);
 			double y_map = particle_y + (sin(theta) * x_obs) + (cos(theta) * y_obs);
 
-			//std::cout << "Observation #" << cur_obs << " (" << x_map << ", " << y_map << ")\n";
-
 			// Nearest Neighbor Algorithm
 			double min_distance = 1000.00;
 			int closest_prediction = -1;
@@ -177,9 +175,9 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 			for (int cur_landmark = 0; cur_landmark < landmarks.size(); cur_landmark++) {
 				double x_pred = landmarks[cur_landmark].x_f;
 				double y_pred = landmarks[cur_landmark].y_f;
-				if ((abs(x_map - x_pred) <= sensor_range) && (abs(y_map - y_pred) <= sensor_range)) {
+				// Only calculate distances within a square as large as the sensor can read from particle
+				if ((abs(particle_x - x_pred) <= sensor_range) && (abs(particle_y - y_pred) <= sensor_range)) {
 					// Measure distance between points by Pythagorean Theorem
-					// sqrt( ( x1 - x2 )**2 + ( y1 - y2 )**2 )
 					double distance = pow((pow((x_map - x_pred), 2) + pow((y_map - y_pred), 2)), 0.5);
 					if (distance < min_distance) {
 						nearest_neighbor = landmarks[cur_landmark];
