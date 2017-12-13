@@ -126,7 +126,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 	//   http://planning.cs.uiuc.edu/node99.html
 	std::cout << "Particle Filter Updating Weights......\n";
 
-	// TODO THERES AN ERROR BELOW THIS LINE, DEBUGGING COMMENTS NEEDED.
+	
 	// Loop through each Particle and convert 
 	for (int p = 0; p < num_particles; p++) {
 		double particle_x = particles[p].x;
@@ -135,7 +135,11 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 		int closest_prediction = -1;
 		double min_distance = 1000.00;
 
-		//std::vector<
+		std:vector<int> associations;
+		std::vector<double> x_observations;
+		std::vector<double> y_observations;
+
+		//std::vector< Landmarks?
 
 		std::cout << "Particle " << p << "\n";
 		// Transform Observation to Map coordinates
@@ -168,9 +172,10 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 			// Associate Observations to Landmarks
 			// TODO: Use ParticleFilter::SetAssociations() for code below
 			// Add coordinates converted to map space to sense data for the current particle
-			particles[p].associations = closest_prediction;
-			particles[p].sense_x = x_map;
-			particles[p].sense_y = y_map;
+			associations.push_back(closest_prediction);
+			x_observations.push_back(x_map);
+			y_observations.push_back(y_map);
+			SetAssociations(particles[p], associations, x_observations, y_observations)
 			std::cout << "Particle " << p << " Associations Updated.\n";
 			// TODO: Remove landmark from temp list, to reduce loop size each run and improve speed
 
