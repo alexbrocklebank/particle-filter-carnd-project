@@ -175,7 +175,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 			associations.push_back(closest_prediction);
 			x_observations.push_back(x_map);
 			y_observations.push_back(y_map);
-			SetAssociations(particles[p], associations, x_observations, y_observations)
+			SetAssociations(particles[p], associations, x_observations, y_observations);
 			std::cout << "Particle " << p << " Associations Updated.\n";
 			// TODO: Remove landmark from temp list, to reduce loop size each run and improve speed
 
