@@ -25,7 +25,7 @@ void ParticleFilter::init(double x, double y, double theta, double std[]) {
 	// Add random Gaussian noise to each particle.
 	// NOTE: Consult particle_filter.h for more information about this method (and others in this file).
 
-	std::cout << "Particle Filter Initialization......\n";
+	//std::cout << "Particle Filter Initialization......\n";
 
 	// Number of particles to draw
 	num_particles = 10;
@@ -56,7 +56,7 @@ void ParticleFilter::init(double x, double y, double theta, double std[]) {
 	// Flag, if filter is initialized
 	is_initialized = true;
 
-	std::cout << "Particle Filter Initialization Complete.\n";
+	//std::cout << "Particle Filter Initialization Complete.\n";
 }
 
 void ParticleFilter::prediction(double delta_t, double std_pos[], double velocity, double yaw_rate) {
@@ -65,7 +65,7 @@ void ParticleFilter::prediction(double delta_t, double std_pos[], double velocit
 	//  http://en.cppreference.com/w/cpp/numeric/random/normal_distribution
 	//  http://www.cplusplus.com/reference/random/default_random_engine/
 
-	std::cout << "Particle Filter Prediction......\n";
+	//std::cout << "Particle Filter Prediction......\n";
 
 	// Set up Gaussian Distributions with random generator
 	default_random_engine gen;
@@ -110,7 +110,7 @@ void ParticleFilter::prediction(double delta_t, double std_pos[], double velocit
 		}
 	}
 	
-	std::cout << "Particle Filter Prediction Complete.\n";
+	//std::cout << "Particle Filter Prediction Complete.\n";
 }
 
 void ParticleFilter::dataAssociation(std::vector<LandmarkObs> predicted, std::vector<LandmarkObs>& observations) {
@@ -134,13 +134,20 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 	//   and the following is a good resource for the actual equation to implement (look at equation 
 	//   3.33
 	//   http://planning.cs.uiuc.edu/node99.html
-	std::cout << "Particle Filter Updating Weights......\n";
+	//std::cout << "Particle Filter Updating Weights......\n";
 	
+	double gauss_norm = (1.0 / (2.0 * M_PI * sig_x * sig_y));
+	double sig_x = std_landmark[0];
+	double sig_y = std_landmark[1];
+
 	// Loop through each Particle and convert 
 	for (int p = 0; p < num_particles; p++) {
 		double particle_x = particles[p].x;
 		double particle_y = particles[p].y;
 		double theta = particles[p].theta;
+
+		// Reset particle weights
+		particles[p].weight = 0.0;
 
 		// SetAssociations variables
 		std:vector<int> associations;
@@ -150,7 +157,6 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 		// Make a copy of the Map to remove entries from
 		std::vector<Map::single_landmark_s> landmarks = map_landmarks.landmark_list;
 
-		std::cout << "Particle " << p << "\n";
 		// Transform Observation to Map coordinates
 		for (int cur_obs = 0; cur_obs < observations.size(); cur_obs++) {
 			// Observation coordinates, X and Y
@@ -161,10 +167,9 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 			double x_map = particle_x + (cos(theta) * x_obs) - (sin(theta) * y_obs);
 			double y_map = particle_y + (sin(theta) * x_obs) + (cos(theta) * y_obs);
 
-			std::cout << "Observation #" << cur_obs << " (" << x_map << ", " << y_map << ")\n";
+			//std::cout << "Observation #" << cur_obs << " (" << x_map << ", " << y_map << ")\n";
 
 			// Nearest Neighbor Algorithm
-			// TODO: Make temp list of landmarks, and after each run, pop the selected landmark
 			double min_distance = 1000.00;
 			int closest_prediction = -1;
 			Map::single_landmark_s nearest_neighbor;
@@ -181,7 +186,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 						closest_prediction = cur_landmark;
 						min_distance = distance;
 					}
-					std::cout << "Landmark #" << cur_landmark << " (" << x_pred << ", " << y_pred << ")\n";
+					//std::cout << "Landmark #" << cur_landmark << " (" << x_pred << ", " << y_pred << ")\n";
 				}
 			}
 			// Associate Observations to Landmarks
@@ -190,50 +195,43 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 			x_observations.push_back(x_map);
 			y_observations.push_back(y_map);
 			particles[p] = SetAssociations(particles[p], associations, x_observations, y_observations);
-			std::cout << "Particle " << p << " Associations Updated.\n";
+			//std::cout << "Particle " << p << " Associations Updated.\n";
 			
 			// Remove landmark from temp list, to reduce loop size each run and improve speed
 			landmarks.erase(landmarks.begin() + closest_prediction);
 
 			// TODO: Where does below code belong?
 			// Multivariate-Gaussian Probability, Lesson 14:19
-			double sig_x = std_landmark[0];
-			//std::cout << "sig_x = " << sig_x << "\n";
-			double sig_y = std_landmark[1];
-			//std::cout << "sig_y = " << sig_y << "\n";
 			double mu_x = nearest_neighbor.x_f;
 			//std::cout << "mu_x = " << mu_x << "\n";
 			double mu_y = nearest_neighbor.y_f;
 			//std::cout << "mu_y = " << mu_y << "\n";
 
-			// TODO: Loop through Associations?
-			double gauss_norm = (1.0 / (2.0 * M_PI * sig_x * sig_y));
-			//std::cout << "gauss_norm = " << gauss_norm << "\n";
 			double exponent = (pow((x_map - mu_x), 2.0)) / (2.0 * pow(sig_x, 2.0)) + (pow((y_map - mu_y), 2.0)) / (2.0 * pow(sig_y, 2.0)); 
 			//std::cout << "exponent = " << exponent << "\n";
 			double particle_weight = gauss_norm * exp(-exponent);
 			//std::cout << "weight = " << weight << "\n";
 
 			// Update particle weights and weights vector
-			particles[p].weight = particle_weight;
-			std::cout << "Particle " << p << ": \n";
-			std::cout << "x:      " << particles[p].x << "\n";
-			std::cout << "y:      " << particles[p].y << "\n";
-			std::cout << "theta:  " << particles[p].theta << "\n";
-			std::cout << "weight: " << particles[p].weight << "\n";
+			particles[p].weight += particle_weight;
+			//std::cout << "Particle " << p << ": \n";
+			//std::cout << "x:      " << particles[p].x << "\n";
+			//std::cout << "y:      " << particles[p].y << "\n";
+			//std::cout << "theta:  " << particles[p].theta << "\n";
+			//std::cout << "weight: " << particles[p].weight << "\n";
 			//weights[particles[p].id] = weight;
 			//std::cout << "Weights Updated.\n";
 		}
 	}
 
-	std::cout << "Particle Filter Updating Weights Complete.\n";
+	//std::cout << "Particle Filter Updating Weights Complete.\n";
 }
 
 void ParticleFilter::resample() {
 	// TODO: Resample particles with replacement with probability proportional to their weight. 
 	// NOTE: You may find std::discrete_distribution helpful here.
 	//   http://en.cppreference.com/w/cpp/numeric/random/discrete_distribution
-	std::cout << "Particle Filter Resampling......\n";
+	//std::cout << "Particle Filter Resampling......\n";
 
 	// Variables
 	std::vector<Particle> new_p;
@@ -261,7 +259,7 @@ void ParticleFilter::resample() {
 
 	particles = new_p;
 
-	std::cout << "Particle Filter Resampling Complete.\n";
+	//std::cout << "Particle Filter Resampling Complete.\n";
 }
 
 Particle ParticleFilter::SetAssociations(Particle& particle, const std::vector<int>& associations, 
