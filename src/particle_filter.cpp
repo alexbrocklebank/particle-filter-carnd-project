@@ -153,6 +153,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 			particles[p].sense_y.push_back(y_map);
 
 			// Nearest Neighbor Algorithm
+			// TODO: Use Sensor Range to weed out landmarks too far away
 			// TODO: Make temp list of landmarks, and after each run, pop the selected landmark
 			for (int cur_landmark = 0; cur_landmark < map_landmarks.landmark_list.size(); cur_landmark++) {
 				double x_pred = map_landmarks.landmark_list[cur_landmark].x_f;
@@ -177,14 +178,22 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 			// TODO: Where does below code belong?
 			// Multivariate-Gaussian Probability, Lesson 14:19
 			double sig_x = std_landmark[0];
+			std::cout << "sig_x = " << sig_x << "\n";
 			double sig_y = std_landmark[1];
+			std::cout << "sig_y = " << sig_y << "\n";
 			double mu_x = map_landmarks.landmark_list[closest_prediction].x_f;
+			std::cout << "mu_x = " << mu_x << "\n";
 			double mu_y = map_landmarks.landmark_list[closest_prediction].y_f;
+			std::cout << "mu_y = " << mu_y << "\n";
+
 			// TODO: Test the equations below, determine correct inputs
 			// TODO: Loop through Associations?
 			double gauss_norm = (1.0 / (2.0 * M_PI * sig_x * sig_y));
+			std::cout << "gauss_norm = " << gauss_norm << "\n";
 			double exponent = (pow((x_map - x_obs),2)) / (2 * pow(sig_x, 2)) + (pow((y_map - y_obs), 2)) / (2 * pow(sig_y, 2)); 
+			std::cout << "exponent = " << exponent << "\n";
 			double weight = gauss_norm * exp(-exponent);
+			std::cout << "weight = " << weight << "\n";
 
 			// Update particle weights and weights vector
 			particles[p].weight = weight;
