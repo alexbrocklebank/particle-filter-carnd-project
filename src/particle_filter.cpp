@@ -128,7 +128,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 
 	// TODO THERES AN ERROR BELOW THIS LINE, DEBUGGING COMMENTS NEEDED.
 	// Loop through each Particle and convert 
-	for (int p = 0; p < particles.size(); p++) {
+	for (int p = 0; p < num_particles; p++) {
 		double particle_x = particles[p].x;
 		double particle_y = particles[p].y;
 		double theta = particles[p].theta;
