@@ -88,9 +88,9 @@ void ParticleFilter::prediction(double delta_t, double std_pos[], double velocit
 		}
 		// If yaw rate is Zero
 		else {
-			it->x = sin(theta) * velocity * delta_t;
-			it->y = cos(theta) * velocity * delta_t;
-			it->theta = theta;
+			it->x = x + velocity * delta_t * cos(theta);
+			it->y = y + velocity * delta_t * sin(theta);
+			//it->theta = theta;
 		}
 		normal_distribution<double> dist_x(it->x, std_x);
 		normal_distribution<double> dist_y(it->y, std_y);
@@ -136,7 +136,6 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 		std:vector<int> associations;
 		std::vector<double> x_observations;
 		std::vector<double> y_observations;
-
 		//std::vector< Landmarks?
 
 		std::cout << "Particle " << p << "\n";
@@ -153,10 +152,10 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 			std::cout << "Observation #" << cur_obs << " (" << x_map << ", " << y_map << ")\n";
 
 			// Nearest Neighbor Algorithm
-			// TODO: Use Sensor Range to weed out landmarks too far away
 			// TODO: Make temp list of landmarks, and after each run, pop the selected landmark
 			double min_distance = 1000.00;
 			int closest_prediction = -1;
+			Map::single_landmark_s nearest_neighbor;
 			for (int cur_landmark = 0; cur_landmark < map_landmarks.landmark_list.size(); cur_landmark++) {
 				double x_pred = map_landmarks.landmark_list[cur_landmark].x_f;
 				double y_pred = map_landmarks.landmark_list[cur_landmark].y_f;
@@ -165,16 +164,15 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 					// sqrt( ( x1 - x2 )**2 + ( y1 - y2 )**2 )
 					double distance = pow((pow((x_map - x_pred), 2) + pow((y_map - y_pred), 2)), 0.5);
 					if (distance < min_distance) {
-						closest_prediction = map_landmarks.landmark_list[closest_prediction].id_i;
+						nearest_neighbor = map_landmarks.landmark_list[closest_prediction];
 						min_distance = distance;
 					}
 					std::cout << "Landmark #" << cur_landmark << " (" << x_pred << ", " << y_pred << ")\n";
 				}
 			}
 			// Associate Observations to Landmarks
-			// TODO: Use ParticleFilter::SetAssociations() for code below
 			// Add coordinates converted to map space to sense data for the current particle
-			associations.push_back(closest_prediction);
+			associations.push_back(nearest_neighbor.id_i);
 			x_observations.push_back(x_map);
 			y_observations.push_back(y_map);
 			particles[p] = SetAssociations(particles[p], associations, x_observations, y_observations);
@@ -187,9 +185,9 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 			//std::cout << "sig_x = " << sig_x << "\n";
 			double sig_y = std_landmark[1];
 			//std::cout << "sig_y = " << sig_y << "\n";
-			double mu_x = map_landmarks.landmark_list[closest_prediction].x_f;
+			double mu_x = nearest_neighbor.x_f;
 			//std::cout << "mu_x = " << mu_x << "\n";
-			double mu_y = map_landmarks.landmark_list[closest_prediction].y_f;
+			double mu_y = nearest_neighbor.y_f;
 			//std::cout << "mu_y = " << mu_y << "\n";
 
 			// TODO: Test the equations below, determine correct inputs
