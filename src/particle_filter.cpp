@@ -136,9 +136,9 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 	//   http://planning.cs.uiuc.edu/node99.html
 	//std::cout << "Particle Filter Updating Weights......\n";
 	
-	double gauss_norm = (1.0 / (2.0 * M_PI * sig_x * sig_y));
 	double sig_x = std_landmark[0];
 	double sig_y = std_landmark[1];
+	double gauss_norm = (1.0 / (2.0 * M_PI * sig_x * sig_y));
 
 	// Loop through each Particle and convert 
 	for (int p = 0; p < num_particles; p++) {
