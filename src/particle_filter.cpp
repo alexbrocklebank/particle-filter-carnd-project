@@ -73,31 +73,41 @@ void ParticleFilter::prediction(double delta_t, double std_pos[], double velocit
 	double std_y = std_pos[1];
 	double std_theta = std_pos[2];
 
-	// Make a Particle iterator
-	std::vector<Particle>::iterator it;
+	normal_distribution<double> dist_x(0.0, std_x);
+	normal_distribution<double> dist_y(0.0, std_y);
+	normal_distribution<double> dist_theta(0.0, std_theta);
 
-	for (it = particles.begin(); it != particles.end(); ++it) {
-		double x = it->x;
-		double y = it->y;
-		double theta = it->theta;
-		// If yaw rate is not Zero
-		if (yaw_rate >= 0.000001) {
-			it->x = x + (velocity / yaw_rate) * (sin(theta + (yaw_rate * delta_t)) - sin(theta));
-			it->y = y + (velocity / yaw_rate) * (cos(theta) - cos(theta + (yaw_rate * delta_t)));
-			it->theta = theta + (yaw_rate * delta_t);
+	double x, y, theta;
+
+	// Make a Particle iterators, depending on Yaw_Rate
+	// If yaw rate is NOT zero
+	if (abs(yaw_rate) >= 0.000001) {
+		double vy = velocity / yaw_rate;
+		double ang = yaw_rate * delta_t;
+
+		for (std::vector<Particle>::iterator it = particles.begin(); it != particles.end(); ++it) {
+			x = it->x;
+			y = it->y;
+			theta = it->theta;
+
+			it->x = x + vr * (sin(theta + ang) - sin(theta)) + dist_x(gen);
+			it->y = y + vr * (cos(theta) - cos(theta + ang)) + dist_y(gen);
+			it->theta = theta + ang + dist_theta(gen);
 		}
-		// If yaw rate is Zero
-		else {
-			it->x = x + velocity * delta_t * cos(theta);
-			it->y = y + velocity * delta_t * sin(theta);
-			//it->theta = theta;
+	}
+	// If yaw rate is Zero
+	else {
+		double vdt = velocity * delta_t;
+
+		for (std::vector<Particle>::iterator it = particles.begin(); it != particles.end(); ++it) {
+			x = it->x;
+			y = it->y;
+			theta = it->theta;
+
+			it->x = x + vdt * cos(theta) + dist_x(gen);
+			it->y = y + vdt * sin(theta) + dist_y(gen);
+			it->theta = theta + dist_theta(gen);
 		}
-		normal_distribution<double> dist_x(it->x, std_x);
-		normal_distribution<double> dist_y(it->y, std_y);
-		normal_distribution<double> dist_theta(it->theta, std_theta);
-		it->x = dist_x(gen);
-		it->y = dist_y(gen);
-		it->theta = dist_theta(gen);
 	}
 	
 	std::cout << "Particle Filter Prediction Complete.\n";
