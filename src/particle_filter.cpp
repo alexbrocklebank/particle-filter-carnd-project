@@ -51,7 +51,7 @@ void ParticleFilter::init(double x, double y, double theta, double std[]) {
 	}
 
 	// Vector of weights of all particles
-	weights = std::vector<double> w(num_particles, 1.0);
+	std::vector<double> weights(num_particles, 1.0);
 
 	// Flag, if filter is initialized
 	is_initialized = true;
