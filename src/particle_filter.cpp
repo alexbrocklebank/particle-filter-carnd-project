@@ -28,7 +28,7 @@ void ParticleFilter::init(double x, double y, double theta, double std[]) {
 	std::cout << "Particle Filter Initialization......\n";
 
 	// Number of particles to draw
-	num_particles = 50;
+	num_particles = 10;
 
 	// Set up Gaussian Distributions with random generator
 	default_random_engine gen;
@@ -164,7 +164,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 					// sqrt( ( x1 - x2 )**2 + ( y1 - y2 )**2 )
 					double distance = pow((pow((x_map - x_pred), 2) + pow((y_map - y_pred), 2)), 0.5);
 					if (distance < min_distance) {
-						nearest_neighbor = map_landmarks.landmark_list[closest_prediction];
+						nearest_neighbor = map_landmarks.landmark_list[cur_landmark];
 						min_distance = distance;
 					}
 					std::cout << "Landmark #" << cur_landmark << " (" << x_pred << ", " << y_pred << ")\n";
