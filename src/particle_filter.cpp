@@ -135,6 +135,8 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 		int closest_prediction = -1;
 		double min_distance = 1000.00;
 
+		std::vector<
+
 		std::cout << "Particle " << p << "\n";
 		// Transform Observation to Map coordinates
 		for (int cur_obs = 0; cur_obs < observations.size(); cur_obs++) {
@@ -148,10 +150,6 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 
 			std::cout << "Observation #" << cur_obs << " (" << x_map << ", " << y_map << ")\n";
 
-			// Add coordinates converted to map space to sense data for the current particle
-			particles[p].sense_x.push_back(x_map);
-			particles[p].sense_y.push_back(y_map);
-
 			// Nearest Neighbor Algorithm
 			// TODO: Use Sensor Range to weed out landmarks too far away
 			// TODO: Make temp list of landmarks, and after each run, pop the selected landmark
@@ -162,16 +160,17 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 				// sqrt( ( x1 - x2 )**2 + ( y1 - y2 )**2 )
 				double distance = pow((pow((x_map - x_pred), 2) + pow((y_map - y_pred), 2)), 0.5);
 				if (distance < min_distance) {
-					closest_prediction = cur_landmark;
+					closest_prediction = map_landmarks.landmark_list[closest_prediction].id_i;
 					min_distance = distance;
 				}
 				std::cout << "Landmark #" << cur_landmark << " (" << x_pred << ", " << y_pred << ")\n";
 			}
 			// Associate Observations to Landmarks
 			// TODO: Use ParticleFilter::SetAssociations() for code below
-			particles[p].associations.push_back(map_landmarks.landmark_list[closest_prediction].id_i);
-			particles[p].sense_x.push_back(x_map);
-			particles[p].sense_y.push_back(y_map);
+			// Add coordinates converted to map space to sense data for the current particle
+			particles[p].associations = closest_prediction;
+			particles[p].sense_x = x_map;
+			particles[p].sense_y = y_map;
 			std::cout << "Particle " << p << " Associations Updated.\n";
 			// TODO: Remove landmark from temp list, to reduce loop size each run and improve speed
 
