@@ -183,7 +183,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 			std::cout << "Particle " << p << " Associations Updated.\n";
 			
 			// Remove landmark from temp list, to reduce loop size each run and improve speed
-			landmarks.erase(closest_prediction);
+			landmarks.erase(landmarks.begin() + closest_prediction);
 
 			// TODO: Where does below code belong?
 			// Multivariate-Gaussian Probability, Lesson 14:19
