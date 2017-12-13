@@ -138,7 +138,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 		std::vector<double> y_observations;
 
 		// Make a copy of the Map to remove entries from
-		std::vector<Map::single_landmark_s> landmarks = map_landmarks;
+		std::vector<Map::single_landmark_s> landmarks = map_landmarks.landmark_list;
 
 		std::cout << "Particle " << p << "\n";
 		// Transform Observation to Map coordinates
