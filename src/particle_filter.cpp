@@ -160,14 +160,16 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 			for (int cur_landmark = 0; cur_landmark < map_landmarks.landmark_list.size(); cur_landmark++) {
 				double x_pred = map_landmarks.landmark_list[cur_landmark].x_f;
 				double y_pred = map_landmarks.landmark_list[cur_landmark].y_f;
-				// Measure distance between points by Pythagorean Theorem
-				// sqrt( ( x1 - x2 )**2 + ( y1 - y2 )**2 )
-				double distance = pow((pow((x_map - x_pred), 2) + pow((y_map - y_pred), 2)), 0.5);
-				if (distance < min_distance) {
-					closest_prediction = map_landmarks.landmark_list[closest_prediction].id_i;
-					min_distance = distance;
+				if ((abs(x_map - x_pred) <= sensor_range) && (abs(y_map - y_pred) <= sensor_range)) {
+					// Measure distance between points by Pythagorean Theorem
+					// sqrt( ( x1 - x2 )**2 + ( y1 - y2 )**2 )
+					double distance = pow((pow((x_map - x_pred), 2) + pow((y_map - y_pred), 2)), 0.5);
+					if (distance < min_distance) {
+						closest_prediction = map_landmarks.landmark_list[closest_prediction].id_i;
+						min_distance = distance;
+					}
+					std::cout << "Landmark #" << cur_landmark << " (" << x_pred << ", " << y_pred << ")\n";
 				}
-				std::cout << "Landmark #" << cur_landmark << " (" << x_pred << ", " << y_pred << ")\n";
 			}
 			// Associate Observations to Landmarks
 			// TODO: Use ParticleFilter::SetAssociations() for code below
