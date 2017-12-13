@@ -90,8 +90,8 @@ void ParticleFilter::prediction(double delta_t, double std_pos[], double velocit
 			y = it->y;
 			theta = it->theta;
 
-			it->x = x + vr * (sin(theta + ang) - sin(theta)) + dist_x(gen);
-			it->y = y + vr * (cos(theta) - cos(theta + ang)) + dist_y(gen);
+			it->x = x + vy * (sin(theta + ang) - sin(theta)) + dist_x(gen);
+			it->y = y + vy * (cos(theta) - cos(theta + ang)) + dist_y(gen);
 			it->theta = theta + ang + dist_theta(gen);
 		}
 	}
