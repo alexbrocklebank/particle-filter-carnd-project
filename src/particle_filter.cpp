@@ -167,7 +167,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 					// sqrt( ( x1 - x2 )**2 + ( y1 - y2 )**2 )
 					double distance = pow((pow((x_map - x_pred), 2) + pow((y_map - y_pred), 2)), 0.5);
 					if (distance < min_distance) {
-						nearest_neighbor = map_landmarks.landmark_list[cur_landmark];
+						nearest_neighbor = landmarks[cur_landmark];
 						closest_prediction = cur_landmark;
 						min_distance = distance;
 					}
