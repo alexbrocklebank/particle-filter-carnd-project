@@ -194,13 +194,13 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 			// TODO: Loop through Associations?
 			double gauss_norm = (1.0 / (2.0 * M_PI * sig_x * sig_y));
 			//std::cout << "gauss_norm = " << gauss_norm << "\n";
-			double exponent = (pow((x_map - mu_x),2)) / (2 * pow(sig_x, 2)) + (pow((y_map - mu_y), 2)) / (2 * pow(sig_y, 2)); 
+			double exponent = (pow((x_map - mu_x), 2.0)) / (2.0 * pow(sig_x, 2.0)) + (pow((y_map - mu_y), 2.0)) / (2.0 * pow(sig_y, 2.0)); 
 			//std::cout << "exponent = " << exponent << "\n";
-			double weight = gauss_norm * exp(-exponent);
+			double particle_weight = gauss_norm * exp(-exponent);
 			//std::cout << "weight = " << weight << "\n";
 
 			// Update particle weights and weights vector
-			particles[p].weight = weight;
+			particles[p].weight = particle_weight;
 			std::cout << "Particle " << p << ": \n";
 			std::cout << "x:      " << particles[p].x << "\n";
 			std::cout << "y:      " << particles[p].y << "\n";
