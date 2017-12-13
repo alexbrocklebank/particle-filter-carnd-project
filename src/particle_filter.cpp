@@ -135,7 +135,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 		int closest_prediction = -1;
 		double min_distance = 1000.00;
 
-		std::vector<
+		//std::vector<
 
 		std::cout << "Particle " << p << "\n";
 		// Transform Observation to Map coordinates
