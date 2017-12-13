@@ -175,7 +175,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 			associations.push_back(closest_prediction);
 			x_observations.push_back(x_map);
 			y_observations.push_back(y_map);
-			SetAssociations(particles[p], associations, x_observations, y_observations);
+			particles[p] = SetAssociations(particles[p], associations, x_observations, y_observations);
 			std::cout << "Particle " << p << " Associations Updated.\n";
 			// TODO: Remove landmark from temp list, to reduce loop size each run and improve speed
 
@@ -219,7 +219,7 @@ void ParticleFilter::resample() {
 	// Variables
 	std::vector<Particle> new_p;
 	default_random_engine gen(time(0));
-	uniform_real_distribution<double> dist(0.0, 1.0);
+	discrete_distribution<double> dist;
 	int index = (int)(dist(gen) * num_particles);
 	double beta = 0.0;
 	double max_w = 0.0;
