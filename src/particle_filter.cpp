@@ -126,6 +126,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 	//   http://planning.cs.uiuc.edu/node99.html
 	std::cout << "Particle Filter Updating Weights......\n";
 
+	// TODO THERES AN ERROR BELOW THIS LINE, DEBUGGING COMMENTS NEEDED.
 	// Loop through each Particle and convert 
 	for (int p = 0; p < particles.size(); p++) {
 		double particle_x = particles[p].x;
@@ -134,6 +135,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 		int closest_prediction = -1;
 		double min_distance = 1000.00;
 
+		std::cout << "Particle " << p << "\n";
 		// Transform Observation to Map coordinates
 		for (int cur_obs = 0; cur_obs < observations.size(); cur_obs++) {
 			// Observation coordinates, X and Y
@@ -143,6 +145,8 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 			// Landmarks Equation from Lesson 14.16 and Figure 3.33
 			double x_map = particle_x + (cos(theta) * x_obs) - (sin(theta) * y_obs);
 			double y_map = particle_y + (sin(theta) * x_obs) + (cos(theta) * y_obs);
+
+			std::cout << "Observation #" << cur_obs << " (" << x_map << ", " << y_map << ")\n";
 
 			// Add coordinates converted to map space to sense data for the current particle
 			particles[p].sense_x.push_back(x_map);
@@ -160,12 +164,14 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 					closest_prediction = cur_landmark;
 					min_distance = distance;
 				}
+				std::cout << "Landmark #" << cur_landmark << " (" << x_pred << ", " << y_pred << ")\n";
 			}
 			// Associate Observations to Landmarks
 			// TODO: Use ParticleFilter::SetAssociations() for code below
 			particles[p].associations.push_back(map_landmarks.landmark_list[closest_prediction].id_i);
 			particles[p].sense_x.push_back(x_map);
 			particles[p].sense_y.push_back(y_map);
+			std::cout << "Particle " << p << " Associations Updated.\n";
 			// TODO: Remove landmark from temp list, to reduce loop size each run and improve speed
 
 			// TODO: Where does below code belong?
@@ -174,7 +180,8 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 			double sig_y = std_landmark[1];
 			double mu_x = map_landmarks.landmark_list[closest_prediction].x_f;
 			double mu_y = map_landmarks.landmark_list[closest_prediction].y_f;
-			//TODO: Test the equations below, determine correct inputs
+			// TODO: Test the equations below, determine correct inputs
+			// TODO: Loop through Associations?
 			double gauss_norm = (1.0 / (2.0 * M_PI * sig_x * sig_y));
 			double exponent = (pow((x_map - x_obs),2)) / (2 * pow(sig_x, 2)) + (pow((y_map - y_obs), 2)) / (2 * pow(sig_y, 2)); 
 			double weight = gauss_norm * exp(-exponent);
@@ -182,6 +189,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 			// Update particle weights and weights vector
 			particles[p].weight = weight;
 			weights[p] = weight;
+			std::cout << "Particle " << p << " Weights Updated.\n";
 		}
 	}
 
