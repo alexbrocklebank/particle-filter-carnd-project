@@ -132,8 +132,6 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 		double particle_x = particles[p].x;
 		double particle_y = particles[p].y;
 		double theta = particles[p].theta;
-		int closest_prediction = -1;
-		double min_distance = 1000.00;
 
 		std:vector<int> associations;
 		std::vector<double> x_observations;
@@ -157,6 +155,8 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 			// Nearest Neighbor Algorithm
 			// TODO: Use Sensor Range to weed out landmarks too far away
 			// TODO: Make temp list of landmarks, and after each run, pop the selected landmark
+			double min_distance = 1000.00;
+			int closest_prediction = -1;
 			for (int cur_landmark = 0; cur_landmark < map_landmarks.landmark_list.size(); cur_landmark++) {
 				double x_pred = map_landmarks.landmark_list[cur_landmark].x_f;
 				double y_pred = map_landmarks.landmark_list[cur_landmark].y_f;
