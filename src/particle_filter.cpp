@@ -51,7 +51,7 @@ void ParticleFilter::init(double x, double y, double theta, double std[]) {
 	}
 
 	// Vector of weights of all particles
-	std::vector<double> weights(num_particles, 1.0);
+	weights(num_particles, 1.0);
 
 	// Flag, if filter is initialized
 	is_initialized = true;
@@ -198,7 +198,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 			// Update particle weights and weights vector
 			particles[p].weight = weight;
 			std::cout << "Particle " << p << " Weights Updated.\n";
-			weights[p] = weight;
+			weights[particles[p].id] = weight;
 			std::cout << "Weights Updated.\n";
 		}
 	}
