@@ -28,7 +28,7 @@ void ParticleFilter::init(double x, double y, double theta, double std[]) {
 	std::cout << "Particle Filter Initialization......\n";
 
 	// Number of particles to draw
-	num_particles = 100;
+	num_particles = 50;
 
 	// Set up Gaussian Distributions with random generator
 	default_random_engine gen;
@@ -178,22 +178,22 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 			// TODO: Where does below code belong?
 			// Multivariate-Gaussian Probability, Lesson 14:19
 			double sig_x = std_landmark[0];
-			std::cout << "sig_x = " << sig_x << "\n";
+			//std::cout << "sig_x = " << sig_x << "\n";
 			double sig_y = std_landmark[1];
-			std::cout << "sig_y = " << sig_y << "\n";
+			//std::cout << "sig_y = " << sig_y << "\n";
 			double mu_x = map_landmarks.landmark_list[closest_prediction].x_f;
-			std::cout << "mu_x = " << mu_x << "\n";
+			//std::cout << "mu_x = " << mu_x << "\n";
 			double mu_y = map_landmarks.landmark_list[closest_prediction].y_f;
-			std::cout << "mu_y = " << mu_y << "\n";
+			//std::cout << "mu_y = " << mu_y << "\n";
 
 			// TODO: Test the equations below, determine correct inputs
 			// TODO: Loop through Associations?
 			double gauss_norm = (1.0 / (2.0 * M_PI * sig_x * sig_y));
-			std::cout << "gauss_norm = " << gauss_norm << "\n";
-			double exponent = (pow((x_map - x_obs),2)) / (2 * pow(sig_x, 2)) + (pow((y_map - y_obs), 2)) / (2 * pow(sig_y, 2)); 
-			std::cout << "exponent = " << exponent << "\n";
+			//std::cout << "gauss_norm = " << gauss_norm << "\n";
+			double exponent = (pow((x_map - mu_x),2)) / (2 * pow(sig_x, 2)) + (pow((y_map - mu_y), 2)) / (2 * pow(sig_y, 2)); 
+			//std::cout << "exponent = " << exponent << "\n";
 			double weight = gauss_norm * exp(-exponent);
-			std::cout << "weight = " << weight << "\n";
+			//std::cout << "weight = " << weight << "\n";
 
 			// Update particle weights and weights vector
 			particles[p].weight = weight;
