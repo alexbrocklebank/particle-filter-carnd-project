@@ -201,8 +201,11 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 
 			// Update particle weights and weights vector
 			particles[p].weight = weight;
-			std::cout << "Particle " << p << ":.\n";
-			std::cout << p;
+			std::cout << "Particle " << p << ": \n";
+			std::cout << "x:      " << x << "\n";
+			std::cout << "y:      " << y << "\n";
+			std::cout << "theta:  " << theta << "\n";
+			std::cout << "weight: " << weight << "\n";
 			//weights[particles[p].id] = weight;
 			//std::cout << "Weights Updated.\n";
 		}
