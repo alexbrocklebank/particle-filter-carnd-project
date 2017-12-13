@@ -81,7 +81,7 @@ void ParticleFilter::prediction(double delta_t, double std_pos[], double velocit
 		double y = it->y;
 		double theta = it->theta;
 		// If yaw rate is not Zero
-		if (yaw_rate >= 0.001) {
+		if (yaw_rate >= 0.000001) {
 			it->x = x + (velocity / yaw_rate) * (sin(theta + (yaw_rate * delta_t)) - sin(theta));
 			it->y = y + (velocity / yaw_rate) * (cos(theta) - cos(theta + (yaw_rate * delta_t)));
 			it->theta = theta + (yaw_rate * delta_t);
@@ -125,7 +125,6 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 	//   3.33
 	//   http://planning.cs.uiuc.edu/node99.html
 	std::cout << "Particle Filter Updating Weights......\n";
-
 	
 	// Loop through each Particle and convert 
 	for (int p = 0; p < num_particles; p++) {
@@ -133,10 +132,13 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 		double particle_y = particles[p].y;
 		double theta = particles[p].theta;
 
+		// SetAssociations variables
 		std:vector<int> associations;
 		std::vector<double> x_observations;
 		std::vector<double> y_observations;
-		//std::vector< Landmarks?
+
+		// Make a copy of the Map to remove entries from
+		std::vector<Map::single_landmark_s> landmarks = map_landmarks;
 
 		std::cout << "Particle " << p << "\n";
 		// Transform Observation to Map coordinates
@@ -156,15 +158,17 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 			double min_distance = 1000.00;
 			int closest_prediction = -1;
 			Map::single_landmark_s nearest_neighbor;
-			for (int cur_landmark = 0; cur_landmark < map_landmarks.landmark_list.size(); cur_landmark++) {
-				double x_pred = map_landmarks.landmark_list[cur_landmark].x_f;
-				double y_pred = map_landmarks.landmark_list[cur_landmark].y_f;
+			
+			for (int cur_landmark = 0; cur_landmark < landmarks.size(); cur_landmark++) {
+				double x_pred = landmarks[cur_landmark].x_f;
+				double y_pred = landmarks[cur_landmark].y_f;
 				if ((abs(x_map - x_pred) <= sensor_range) && (abs(y_map - y_pred) <= sensor_range)) {
 					// Measure distance between points by Pythagorean Theorem
 					// sqrt( ( x1 - x2 )**2 + ( y1 - y2 )**2 )
 					double distance = pow((pow((x_map - x_pred), 2) + pow((y_map - y_pred), 2)), 0.5);
 					if (distance < min_distance) {
 						nearest_neighbor = map_landmarks.landmark_list[cur_landmark];
+						closest_prediction = cur_landmark;
 						min_distance = distance;
 					}
 					std::cout << "Landmark #" << cur_landmark << " (" << x_pred << ", " << y_pred << ")\n";
@@ -177,7 +181,9 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 			y_observations.push_back(y_map);
 			particles[p] = SetAssociations(particles[p], associations, x_observations, y_observations);
 			std::cout << "Particle " << p << " Associations Updated.\n";
-			// TODO: Remove landmark from temp list, to reduce loop size each run and improve speed
+			
+			// Remove landmark from temp list, to reduce loop size each run and improve speed
+			landmarks.erase(landmarks[closest_prediction]);
 
 			// TODO: Where does below code belong?
 			// Multivariate-Gaussian Probability, Lesson 14:19
@@ -190,7 +196,6 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 			double mu_y = nearest_neighbor.y_f;
 			//std::cout << "mu_y = " << mu_y << "\n";
 
-			// TODO: Test the equations below, determine correct inputs
 			// TODO: Loop through Associations?
 			double gauss_norm = (1.0 / (2.0 * M_PI * sig_x * sig_y));
 			//std::cout << "gauss_norm = " << gauss_norm << "\n";
