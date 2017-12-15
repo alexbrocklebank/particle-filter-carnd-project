@@ -89,7 +89,7 @@ void ParticleFilter::prediction(double delta_t, double std_pos[], double velocit
 
 		// If yaw rate is not Zero (using ! operator since IS_ZERO is a more definitive state
 		// but NOT_ZERO is much more likely to occur, therefore is appearing first)
-		if !yaw_rate_zero{
+		if !(yaw_rate_zero) {
 			it->x = x + vy * (sin(theta + ang) - sin(theta)) + dist_x(gen);
 			it->y = y + vy * (cos(theta) - cos(theta + ang)) + dist_y(gen);
 			it->theta = theta + ang + dist_theta(gen);
