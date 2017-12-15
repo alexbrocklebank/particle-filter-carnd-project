@@ -26,7 +26,7 @@ void ParticleFilter::init(double x, double y, double theta, double std[]) {
 	// NOTE: Consult particle_filter.h for more information about this method (and others in this file).
 
 	// Number of particles to draw
-	num_particles = 10;
+	num_particles = 200;
 
 	// Set up Gaussian Distributions with random generator
 	default_random_engine gen;
@@ -61,8 +61,6 @@ void ParticleFilter::prediction(double delta_t, double std_pos[], double velocit
 	//  http://en.cppreference.com/w/cpp/numeric/random/normal_distribution
 	//  http://www.cplusplus.com/reference/random/default_random_engine/
 
-	std::cout << "-- Prediction Step --\n";
-
 	// Standard Deviation variables and random generator
 	default_random_engine gen;
 	double std_x = std_pos[0];
@@ -76,13 +74,13 @@ void ParticleFilter::prediction(double delta_t, double std_pos[], double velocit
 
 	double x, y, theta;
 
-	// Make Particle iterators, depending on Yaw_Rate
+	// Make Particle iterators, depending on Yaw_Rate, to prevent checking on every iteration of loop
 	// If yaw rate is NOT zero
 	if (abs(yaw_rate) >= 0.000001) {
 		double vy = velocity / yaw_rate;
 		double ang = yaw_rate * delta_t;
 
-		// Particle Loop
+		// Particle Loop for Yaw Rate != 0
 		for (std::vector<Particle>::iterator it = particles.begin(); it != particles.end(); ++it) {
 			x = it->x;
 			y = it->y;
@@ -97,7 +95,7 @@ void ParticleFilter::prediction(double delta_t, double std_pos[], double velocit
 	else {
 		double vdt = velocity * delta_t;
 
-		// Particle Loop
+		// Particle Loop for Yaw Rate == 0
 		for (std::vector<Particle>::iterator it = particles.begin(); it != particles.end(); ++it) {
 			x = it->x;
 			y = it->y;
@@ -108,7 +106,6 @@ void ParticleFilter::prediction(double delta_t, double std_pos[], double velocit
 			it->theta = theta + dist_theta(gen);
 		}
 	}
-	std::cout << "-- End Prediction Step --\n";
 }
 
 void ParticleFilter::dataAssociation(std::vector<LandmarkObs> predicted, std::vector<LandmarkObs>& observations) {
@@ -133,8 +130,6 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 	//   and the following is a good resource for the actual equation to implement (look at equation 
 	//   3.33
 	//   http://planning.cs.uiuc.edu/node99.html
-	
-	std::cout << "-- Update Step --\n";
 
 	double sig_x = std_landmark[0];
 	double sig_y = std_landmark[1];
@@ -142,8 +137,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 
 	// Loop through each Particle and convert 
 	for (int p = 0; p < num_particles; p++) {
-		std::cout << "Particle " << p << ": \n";
-		
+		// Current Particle values
 		double particle_x = particles[p].x;
 		double particle_y = particles[p].y;
 		double theta = particles[p].theta;
@@ -190,7 +184,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 						nearest_neighbor = landmarks[cur_landmark];
 						closest_prediction = cur_landmark;
 						min_distance = distance;
-						std::cout << "\tObservation " << cur_obs << " is close to Landmark " << cur_landmark << ".\n";
+						//std::cout << "\tObservation " << cur_obs << " is close to Landmark " << cur_landmark << ".\n";
 					}
 				}
 			}
@@ -200,7 +194,8 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 			x_observations.push_back(x_map);
 			y_observations.push_back(y_map);
 			
-			// Remove landmark from temp list, to reduce loop size each run and improve speed
+			// Remove landmark from temp list if closest prediction has been found,
+			// to reduce loop size for subsequent runs and improve speed.
 			if (closest_prediction >= 0) {
 				landmarks.erase(landmarks.begin() + closest_prediction);
 			}
@@ -217,16 +212,12 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 		// Set Associations
 		particles[p] = SetAssociations(particles[p], associations, x_observations, y_observations);
 	}
-
-	std::cout << "-- End Update Step --\n";
 }
 
 void ParticleFilter::resample() {
 	// TODO: Resample particles with replacement with probability proportional to their weight. 
 	// NOTE: You may find std::discrete_distribution helpful here.
 	//   http://en.cppreference.com/w/cpp/numeric/random/discrete_distribution
-
-	std::cout << "-- Resample Step --\n";
 
 	// Variables
 	std::vector<Particle> new_p;
@@ -254,8 +245,6 @@ void ParticleFilter::resample() {
 
 	// New Particles vector
 	particles = new_p;
-
-	std::cout << "-- End Resample Step --\n";
 }
 
 Particle ParticleFilter::SetAssociations(Particle& particle, const std::vector<int>& associations, 
