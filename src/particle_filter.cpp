@@ -26,7 +26,7 @@ void ParticleFilter::init(double x, double y, double theta, double std[]) {
 	// NOTE: Consult particle_filter.h for more information about this method (and others in this file).
 
 	// Number of particles to draw
-	num_particles = 10;
+	num_particles = 200;
 
 	// Set up Gaussian Distributions with random generator
 	default_random_engine gen;
@@ -61,12 +61,13 @@ void ParticleFilter::prediction(double delta_t, double std_pos[], double velocit
 	//  http://en.cppreference.com/w/cpp/numeric/random/normal_distribution
 	//  http://www.cplusplus.com/reference/random/default_random_engine/
 
-	// Set up Gaussian Distributions with random generator
+	// Standard Deviation variables and random generator
 	default_random_engine gen;
 	double std_x = std_pos[0];
 	double std_y = std_pos[1];
 	double std_theta = std_pos[2];
 
+	// Normal Distributions
 	normal_distribution<double> dist_x(0.0, std_x);
 	normal_distribution<double> dist_y(0.0, std_y);
 	normal_distribution<double> dist_theta(0.0, std_theta);
@@ -79,6 +80,7 @@ void ParticleFilter::prediction(double delta_t, double std_pos[], double velocit
 		double vy = velocity / yaw_rate;
 		double ang = yaw_rate * delta_t;
 
+		// Particle Loop
 		for (std::vector<Particle>::iterator it = particles.begin(); it != particles.end(); ++it) {
 			x = it->x;
 			y = it->y;
@@ -93,6 +95,7 @@ void ParticleFilter::prediction(double delta_t, double std_pos[], double velocit
 	else {
 		double vdt = velocity * delta_t;
 
+		// Particle Loop
 		for (std::vector<Particle>::iterator it = particles.begin(); it != particles.end(); ++it) {
 			x = it->x;
 			y = it->y;
