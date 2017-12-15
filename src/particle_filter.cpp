@@ -67,40 +67,35 @@ void ParticleFilter::prediction(double delta_t, double std_pos[], double velocit
 	double std_y = std_pos[1];
 	double std_theta = std_pos[2];
 
+	// Determine if Yaw Rate is zero, to prevent recalculating on every loop step
+	bool yaw_rate_zero = !(abs(yaw_rate) >= 0.000001);
+
 	// Normal Distributions
 	normal_distribution<double> dist_x(0.0, std_x);
 	normal_distribution<double> dist_y(0.0, std_y);
 	normal_distribution<double> dist_theta(0.0, std_theta);
 
+	// Variables for use within particle loop
 	double x, y, theta;
+	double vdt = velocity * delta_t;
+	double vy = velocity / yaw_rate;
+	double ang = yaw_rate * delta_t;
 
-	// Make Particle iterators, depending on Yaw_Rate, to prevent checking on every iteration of loop
-	// If yaw rate is NOT zero
-	if (abs(yaw_rate) >= 0.000001) {
-		double vy = velocity / yaw_rate;
-		double ang = yaw_rate * delta_t;
+	// Particle iterator
+	for (std::vector<Particle>::iterator it = particles.begin(); it != particles.end(); ++it) {
+		x = it->x;
+		y = it->y;
+		theta = it->theta;
 
-		// Particle Loop for Yaw Rate != 0
-		for (std::vector<Particle>::iterator it = particles.begin(); it != particles.end(); ++it) {
-			x = it->x;
-			y = it->y;
-			theta = it->theta;
-
+		// If yaw rate is not Zero (using ! operator since IS_ZERO is a more definitive state
+		// but NOT_ZERO is much more likely to occur, therefore is appearing first)
+		if !yaw_rate_zero{
 			it->x = x + vy * (sin(theta + ang) - sin(theta)) + dist_x(gen);
 			it->y = y + vy * (cos(theta) - cos(theta + ang)) + dist_y(gen);
 			it->theta = theta + ang + dist_theta(gen);
 		}
-	}
-	// If yaw rate is Zero
-	else {
-		double vdt = velocity * delta_t;
-
-		// Particle Loop for Yaw Rate == 0
-		for (std::vector<Particle>::iterator it = particles.begin(); it != particles.end(); ++it) {
-			x = it->x;
-			y = it->y;
-			theta = it->theta;
-
+		// If yaw rate is Zero
+		else {
 			it->x = x + vdt * cos(theta) + dist_x(gen);
 			it->y = y + vdt * sin(theta) + dist_y(gen);
 			it->theta = theta + dist_theta(gen);
