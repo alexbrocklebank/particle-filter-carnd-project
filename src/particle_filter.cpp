@@ -201,7 +201,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 			y_observations.push_back(y_map);
 			
 			// Remove landmark from temp list, to reduce loop size each run and improve speed
-			if (closest_prediction > 0) {
+			if (closest_prediction >= 0) {
 				landmarks.erase(landmarks.begin() + closest_prediction);
 			}
 
