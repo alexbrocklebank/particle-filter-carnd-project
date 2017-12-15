@@ -61,6 +61,8 @@ void ParticleFilter::prediction(double delta_t, double std_pos[], double velocit
 	//  http://en.cppreference.com/w/cpp/numeric/random/normal_distribution
 	//  http://www.cplusplus.com/reference/random/default_random_engine/
 
+	std::cout << "-- Prediction Step --\n";
+
 	// Standard Deviation variables and random generator
 	default_random_engine gen;
 	double std_x = std_pos[0];
@@ -106,6 +108,7 @@ void ParticleFilter::prediction(double delta_t, double std_pos[], double velocit
 			it->theta = theta + dist_theta(gen);
 		}
 	}
+	std::cout << "-- End Prediction Step --\n";
 }
 
 void ParticleFilter::dataAssociation(std::vector<LandmarkObs> predicted, std::vector<LandmarkObs>& observations) {
@@ -131,12 +134,16 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 	//   3.33
 	//   http://planning.cs.uiuc.edu/node99.html
 	
+	std::cout << "-- Update Step --\n";
+
 	double sig_x = std_landmark[0];
 	double sig_y = std_landmark[1];
 	double gauss_norm = (1.0 / (2.0 * M_PI * sig_x * sig_y));
 
 	// Loop through each Particle and convert 
 	for (int p = 0; p < num_particles; p++) {
+		std::cout << "Particle " << p << ": \n";
+		
 		double particle_x = particles[p].x;
 		double particle_y = particles[p].y;
 		double theta = particles[p].theta;
@@ -158,6 +165,8 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 			double x_obs = observations[cur_obs].x;
 			double y_obs = observations[cur_obs].y;
 
+			std::cout << "\tObservation " << cur_obs << "\n";
+
 			// Landmarks Equation from Lesson 14.16 and Figure 3.33
 			double x_map = particle_x + (cos(theta) * x_obs) - (sin(theta) * y_obs);
 			double y_map = particle_y + (sin(theta) * x_obs) + (cos(theta) * y_obs);
@@ -171,6 +180,8 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 			for (int cur_landmark = 0; cur_landmark < landmarks.size(); ++cur_landmark) {
 				double x_pred = landmarks[cur_landmark].x_f;
 				double y_pred = landmarks[cur_landmark].y_f;
+
+				std::cout << "\t\tLandmark " << cur_landmark << "\n";
 				// Only calculate distances within a square as large as the sensor can read from particle
 				if ((abs(particle_x - x_pred) <= sensor_range) && (abs(particle_y - y_pred) <= sensor_range)) {
 					// Measure distance between points by Pythagorean Theorem
@@ -203,12 +214,16 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 		// Set Associations
 		particles[p] = SetAssociations(particles[p], associations, x_observations, y_observations);
 	}
+
+	std::cout << "-- End Update Step --\n";
 }
 
 void ParticleFilter::resample() {
 	// TODO: Resample particles with replacement with probability proportional to their weight. 
 	// NOTE: You may find std::discrete_distribution helpful here.
 	//   http://en.cppreference.com/w/cpp/numeric/random/discrete_distribution
+
+	std::cout << "-- Resample Step --\n";
 
 	// Variables
 	std::vector<Particle> new_p;
@@ -236,6 +251,8 @@ void ParticleFilter::resample() {
 
 	// New Particles vector
 	particles = new_p;
+
+	std::cout << "-- End Resample Step --\n";
 }
 
 Particle ParticleFilter::SetAssociations(Particle& particle, const std::vector<int>& associations, 
