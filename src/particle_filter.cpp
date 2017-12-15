@@ -168,7 +168,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 			Map::single_landmark_s nearest_neighbor;
 
 			// Nearest Neighbor Loop of Landmarks
-			for (int cur_landmark = 0; cur_landmark < landmarks.size(); cur_landmark++) {
+			for (int cur_landmark = 0; cur_landmark < landmarks.size(); ++cur_landmark) {
 				double x_pred = landmarks[cur_landmark].x_f;
 				double y_pred = landmarks[cur_landmark].y_f;
 				// Only calculate distances within a square as large as the sensor can read from particle
