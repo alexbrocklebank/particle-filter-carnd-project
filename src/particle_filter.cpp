@@ -26,7 +26,7 @@ void ParticleFilter::init(double x, double y, double theta, double std[]) {
 	// NOTE: Consult particle_filter.h for more information about this method (and others in this file).
 
 	// Number of particles to draw
-	num_particles = 200;
+	num_particles = 10;
 
 	// Set up Gaussian Distributions with random generator
 	default_random_engine gen;
@@ -165,7 +165,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 			double x_obs = observations[cur_obs].x;
 			double y_obs = observations[cur_obs].y;
 
-			std::cout << "\tObservation " << cur_obs << "\n";
+			//std::cout << "\tObservation " << cur_obs << "\n";
 
 			// Landmarks Equation from Lesson 14.16 and Figure 3.33
 			double x_map = particle_x + (cos(theta) * x_obs) - (sin(theta) * y_obs);
@@ -181,7 +181,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 				double x_pred = landmarks[cur_landmark].x_f;
 				double y_pred = landmarks[cur_landmark].y_f;
 
-				std::cout << "\t\tLandmark " << cur_landmark << "\n";
+				//std::cout << "\t\tLandmark " << cur_landmark << "\n";
 				// Only calculate distances within a square as large as the sensor can read from particle
 				if ((abs(particle_x - x_pred) <= sensor_range) && (abs(particle_y - y_pred) <= sensor_range)) {
 					// Measure distance between points by Pythagorean Theorem
@@ -190,6 +190,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 						nearest_neighbor = landmarks[cur_landmark];
 						closest_prediction = cur_landmark;
 						min_distance = distance;
+						std::cout << "\tObservation " << cur_obs << " is close to Landmark " << cur_landmark << ".\n";
 					}
 				}
 			}
@@ -200,7 +201,9 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 			y_observations.push_back(y_map);
 			
 			// Remove landmark from temp list, to reduce loop size each run and improve speed
-			landmarks.erase(landmarks.begin() + closest_prediction);
+			if (closest_prediction > 0) {
+				landmarks.erase(landmarks.begin() + closest_prediction);
+			}
 
 			// Multivariate-Gaussian Probability, Lesson 14:19
 			double mu_x = nearest_neighbor.x_f;
